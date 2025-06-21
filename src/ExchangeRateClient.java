@@ -3,24 +3,25 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 
 public class ExchangeRateClient {
-    private final HttpClient client = HttpClient.newHttpClient();
+    private static final String API_URL = "https://v6.exchangerate-api.com/v6/3fdf0c4f554081d5ef5d9426/latest/USD";
 
     public String getExchangeRates() {
-        // URL de la API (puedes cambiar la base si usas otra moneda)
-        String apiUrl = "https://v6.exchangerate-api.com/v6/3fdf0c4f554081d5ef5d9426/latest/USD";
-
+        HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(apiUrl))
+                .uri(URI.create(API_URL))
+                .timeout(Duration.ofSeconds(10))
+                .header("Accept", "application/json")
                 .GET()
                 .build();
 
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            return response.body(); // Esto devuelve el JSON con todas las tasas
+            return response.body();
         } catch (IOException | InterruptedException e) {
-            System.out.println("Error al obtener las tasas de cambio: " + e.getMessage());
+            System.out.println("Error al realizar la solicitud: " + e.getMessage());
             return null;
         }
     }
